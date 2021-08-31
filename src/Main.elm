@@ -98,11 +98,14 @@ viewBody model =
 
 viewError : Maybe String -> Element Msg
 viewError error =
-    text <| Maybe.withDefault "" error
+    error
+        |> Maybe.withDefault ""
+        |> text
 
 viewUser : Maybe User -> Element Msg
 viewUser user =
-    text 
-        <| Maybe.withDefault "" 
-        <| Maybe.map String.fromInt 
-        <| Maybe.andThen (.age) user
+    user
+        |> Maybe.andThen (.age) 
+        |> Maybe.map String.fromInt
+        |> Maybe.withDefault "" 
+        |> text
