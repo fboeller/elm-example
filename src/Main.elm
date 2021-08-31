@@ -101,19 +101,29 @@ view model =
 viewBody : Model -> Element Msg
 viewBody model =
     row [ centerY, centerX, spacing 24 ] 
-        [ viewUser model.loadingUser
-        , Input.button [] { onPress = Just Increment, label = text "+" }
+        [ viewLoadingUser model.loadingUser
+        , Input.button [] 
+            { onPress = Just Increment
+            , label = text "+" 
+            }
         ]
 
-viewUser : Loading User -> Element Msg
-viewUser loadingUser =
+viewLoadingUser : Loading User -> Element Msg
+viewLoadingUser loadingUser =
     case loadingUser of
         Loaded user -> 
-            user.age
-                |> Maybe.map String.fromInt
-                |> Maybe.withDefault "" 
-                |> text
+            viewUser user
         Loading -> 
             text "Loading..."
         Error _ ->
             text "Error!"
+
+viewUser : User -> Element Msg
+viewUser user =
+    row [ spacing 24 ]
+        [ text user.name 
+        , user.age
+            |> Maybe.map String.fromInt
+            |> Maybe.withDefault "" 
+            |> text
+        ]

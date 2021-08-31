@@ -3,6 +3,6 @@ Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: *
 
 {
-   "name": "Hanna",
+   "name": "Gustav",
    "age": 45
 }
