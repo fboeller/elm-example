@@ -25,6 +25,11 @@ type alias User =
     , age: Maybe Int
     }
 
+type Loading a
+    = Loaded a
+    | Loading
+    | Error Http.Error
+
 userDecoder : Decoder User
 userDecoder =
     map2 User
@@ -34,12 +39,11 @@ userDecoder =
 type alias Model = 
     { key : Nav.Key
     , url : Url.Url
-    , user: Maybe User
-    , error: Maybe String
+    , loadingUser: Loading User
     }
 
 init : () -> Url.Url -> Nav.Key -> (Model, Cmd Msg)
-init _ url key = ({ key = key, url = url, user = Nothing, error = Nothing }, getUser)
+init _ url key = ({ key = key, url = url, loadingUser = Loading }, getUser)
 
 getUser : Cmd Msg
 getUser = Http.get 
@@ -74,38 +78,42 @@ update msg model =
 increment : Model -> Model
 increment model = 
     let newUser user = { user | age = Maybe.map ((+) 1) user.age } in
-    { model | user = Maybe.map newUser model.user }
+    { model | loadingUser = 
+        case model.loadingUser of 
+            Loaded user -> Loaded (newUser user) 
+            loadingUser -> loadingUser 
+    }
 
 gotUser : Result Http.Error User -> Model -> Model
 gotUser result model = 
-    case result of
-        Ok user -> { model | user = Just user, error = Nothing }
-        Err error -> { model | error = Nothing, user = Nothing } 
+    { model | loadingUser = 
+        case result of
+            Ok user -> Loaded user
+            Err error -> Error error
+    }
 
 view : Model -> Browser.Document Msg
 view model = 
     { title = Url.toString model.url
-    , body = [Element.layout [] <| viewBody model]
+    , body = [Element.layout [] (viewBody model)]
     }
 
 viewBody : Model -> Element Msg
 viewBody model =
     row [ centerY, centerX, spacing 24 ] 
-        [ viewError model.error
-        , viewUser model.user
+        [ viewUser model.loadingUser
         , Input.button [] { onPress = Just Increment, label = text "+" }
         ]
 
-viewError : Maybe String -> Element Msg
-viewError error =
-    error
-        |> Maybe.withDefault ""
-        |> text
-
-viewUser : Maybe User -> Element Msg
-viewUser user =
-    user
-        |> Maybe.andThen (.age) 
-        |> Maybe.map String.fromInt
-        |> Maybe.withDefault "" 
-        |> text
+viewUser : Loading User -> Element Msg
+viewUser loadingUser =
+    case loadingUser of
+        Loaded user -> 
+            user.age
+                |> Maybe.map String.fromInt
+                |> Maybe.withDefault "" 
+                |> text
+        Loading -> 
+            text "Loading..."
+        Error _ ->
+            text "Error!"
