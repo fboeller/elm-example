@@ -2,15 +2,11 @@ module Main exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (div)
-import Html.Events exposing (onClick)
-import Html exposing (text)
-import Html exposing (button)
-import Html exposing (Html)
 import Json.Decode exposing (Decoder, field, int, string, map2, maybe)
 import Http
 import Url
-import Element
+import Element exposing (..)
+import Element.Input as Input
 
 main : Program () Model Msg
 main =
@@ -89,28 +85,24 @@ gotUser result model =
 view : Model -> Browser.Document Msg
 view model = 
     { title = Url.toString model.url
-    , body = [viewBody model]
+    , body = [Element.layout [] <| viewBody model]
     }
 
-viewBody : Model -> Html Msg
+viewBody : Model -> Element Msg
 viewBody model =
-    div [] 
-        [ button [ onClick Increment ] [ text "+" ]
-        , viewError model.error
+    row [ centerY, centerX, spacing 24 ] 
+        [ viewError model.error
         , viewUser model.user
+        , Input.button [] { onPress = Just Increment, label = text "+" }
         ]
 
-viewError : Maybe String -> Html Msg
+viewError : Maybe String -> Element Msg
 viewError error =
-    div []
-        [ text <| Maybe.withDefault "" error
-        ]
+    text <| Maybe.withDefault "" error
 
-viewUser : Maybe User -> Html Msg
+viewUser : Maybe User -> Element Msg
 viewUser user =
-    div [] 
-        [ text 
-            <| Maybe.withDefault "" 
-            <| Maybe.map String.fromInt 
-            <| Maybe.andThen (.age) user 
-        ]
+    text 
+        <| Maybe.withDefault "" 
+        <| Maybe.map String.fromInt 
+        <| Maybe.andThen (.age) user
