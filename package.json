@@ -1,0 +1,38 @@
+{
+  "name": "elm-example",
+  "version": "1.0.0",
+  "description": "An example elm application showing the basic concepts of Elm",
+  "main": "index.html",
+  "directories": {
+    "test": "tests"
+  },
+  "author": "",
+  "license": "ISC",
+  "watch": {
+    "build": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "elm",
+      "clearBuffer": true
+    },
+    "test": {
+      "patterns": [
+        "src",
+        "test"
+      ],
+      "extensions": "elm",
+      "clearBuffer": true
+    }
+  },
+  "scripts": {
+    "build": "elm make src/Main.elm --output elm.js",
+    "build-watch": "npm-watch build",
+    "test": "elm-test",
+    "test-watch": "npm-watch test"
+  },
+  "devDependencies": {
+    "http-server": "^13.0.1",
+    "mockserver": "^3.1.1"
+  }
+}
